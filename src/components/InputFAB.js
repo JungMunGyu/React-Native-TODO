@@ -10,11 +10,13 @@ import {
 import { BLACK, PRIMARY, WHITE } from '../colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 
 const BOTTOM = 30;
 const BUTTON_WIDTH = 60;
+const RIGHT = 10;
 
-const InputFAB = () => {
+const InputFAB = ({ onInsert, isBottom }) => {
   const [text, setText] = useState('');
   const [isOpened, setIsOpened] = useState(false);
   const inputRef = useRef(null);
@@ -27,6 +29,15 @@ const InputFAB = () => {
     inputRange: [0, 1],
     outputRange: ['0deg', '315deg'],
   });
+
+  const buttonRight = useRef(new Animated.Value(RIGHT)).current;
+
+  useEffect(() => {
+    Animated.timing(buttonRight, {
+      toValue: isBottom ? RIGHT - BUTTON_WIDTH : RIGHT,
+      useNativeDriver: false,
+    }).start();
+  }, [isBottom, buttonRight]);
 
   const open = () => {
     setIsOpened(true);
@@ -50,7 +61,9 @@ const InputFAB = () => {
       toValue: BUTTON_WIDTH,
       useNativeDriver: false,
       duration: 300,
-    }).start(() => {});
+    }).start(() => {
+      setText('');
+    });
     Animated.spring(buttonRotation, {
       toValue: 0,
       useNativeDriver: false,
@@ -59,6 +72,12 @@ const InputFAB = () => {
   };
 
   const onPressButton = () => (isOpened ? close() : open());
+  const onPressInsert = () => {
+    const task = text.trim();
+    if (task) {
+      onInsert(task);
+    }
+  };
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
@@ -86,6 +105,7 @@ const InputFAB = () => {
             bottom: keyboardHeight,
             alignItems: 'flex-start',
             width: inputWidth,
+            right: buttonRight,
           },
         ]}
       >
@@ -100,13 +120,18 @@ const InputFAB = () => {
           keyboardAppearance={'light'}
           returnKeyType={'done'}
           onBlur={close}
+          onSubmitEditing={onPressInsert}
         />
       </Animated.View>
 
       <Animated.View
         style={[
           styles.container,
-          { bottom: keyboardHeight, transform: [{ rotate: spin }] },
+          {
+            bottom: keyboardHeight,
+            transform: [{ rotate: spin }],
+            right: buttonRight,
+          },
         ]}
       >
         <Pressable
@@ -125,10 +150,14 @@ const InputFAB = () => {
   );
 };
 
+InputFAB.propTypes = {
+  onInsert: PropTypes.func.isRequired,
+  isBottom: PropTypes.bool,
+};
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    right: 10,
     width: BUTTON_WIDTH,
     height: BUTTON_WIDTH,
     borderRadius: BUTTON_WIDTH / 2,
