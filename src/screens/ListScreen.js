@@ -1,43 +1,18 @@
-import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import EmptyList from '../components/EmptyList';
+import List from '../components/List';
+import InputFAB from '../components/InputFAB';
 
 const ListScreen = () => {
-  const todos = [];
-  for (let i = 1; i < 501; i++) {
-    todos.push({ id: i, task: `task ${i}`, number: i });
-  }
+  const todos = [
+    // { id: 1, task: 'test', isDone: false }
+  ];
 
   return (
-    <FlatList
-      data={todos}
-      renderItem={({ item }) => {
-        return (
-          <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
-            <Text style={{ fontSize: 20 }}>{item.task}</Text>
-          </View>
-        );
-      }}
-      keyExtractor={(item) => item.number.toString()}
-    />
-    // <ScrollView style={styles.container}>
-    //   {todos.map((item) => {
-    //     console.log(item.id);
-    //     return (
-    //       <View
-    //         key={item.id}
-    //         style={{ paddingHorizontal: 20, paddingVertical: 10 }}
-    //       >
-    //         <Text style={{ fontSize: 20 }}>{item.task}</Text>
-    //       </View>
-    //     );
-    //   })}
-    // </ScrollView>
+    <>
+      {todos.length ? <List /> : <EmptyList />}
+      <InputFAB />
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default ListScreen;
